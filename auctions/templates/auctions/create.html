@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Create New Listing</h2>
+    <form action="{% url 'create' %}" method="post">
+        {% csrf_token %}
+        <label for="title" class="required">Title</label>
+        <br>
+        <input type="text" id="title" name="title" required>
+        <br>
+        <label for="description" class="required">Description</label>
+        <br>
+        <textarea id="description" name="description" required></textarea>
+        <br>
+        <label for="starting-bid" class="required">Starting Bid</label>
+        <br>
+        <input type="number" value=0.50 name="starting-bid" id="starting-bid" min="0" step="1" required>
+        <label>$</label>
+        <br>
+        <label for="image-link">Image link</label>
+        <br>
+        <input type="text" name="image-link" id="image-link">
+        <br>
+        <label for="category">Category</label>
+        <br>
+        <select id="category" name="category">
+            <option value="">--Select a category--</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="home-and-garden">Home & Garden</option>
+            <option value="health-and-beauty">Health & Beauty</option>
+            <option value="sports-and-outdoors">Sports & Outdoors</option>
+            <option value="toys-and-games">Toys & Games</option>
+            <option value="books-and-media">Books & Media</option>
+            <option value="automotive">Automotive</option>
+            <option value="pet-supplies">Pet Supplies</option>
+            <option value="food-and-beverages">Food & Beverages</option>
+        </select>
+        <br>
+        <input type="submit" value="Create">
+    </form>
+{% endblock %}
