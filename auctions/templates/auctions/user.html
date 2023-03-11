@@ -1,0 +1,21 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{ user.username }}</h2>
+    <ul>
+        {% if listings %}
+            {% for listing in listings %}
+                <li>
+                    <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>, posted on {{ listing.posted_datetime}}
+                    <br>
+                    {% if listing.image_url %}
+                        <img src="{{ listing.image_url }}" width="600" alt="{{ listing.title }}">
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% else %}
+            <p>No open listings.</p>
+        {% endif %}
+
+    </ul>
+{% endblock %}

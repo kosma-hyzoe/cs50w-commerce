@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -64,16 +64,28 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-def listing_view(request, listing):
+def listing_view(request, listing_id):
+    try:
+        listing = Listing.objects.get(id=listing_id)
+    except Listing.DoesNotExist:
+        raise Http404("Listing not found.")
     return render(request, "auctions/listing.html", {"listing": listing})
 
+
+def user_view(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404("User not found.")
+    listings = Listing.objects.filter(user=user_id)
+    return render(request, "auctions/user.html", {"user": user, "listings": listings})
 
 
 def create(request):
     if request.method == "POST":
         listing = Listing(
-            seller=request.user,
-            title=request.POST.get("title"),
+            user_id=request.user,
+            listing_title=request.POST.get("title"),
             description=request.POST.get("description"),
             starting_bid=request.POST.get("starting-bid"),
             image_url=request.POST.get("image-link"),

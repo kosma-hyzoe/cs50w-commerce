@@ -1,7 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-     <h2>{{ listing.title }}</h2>
+    <h2>{{ listing.title }}</h2>
+    <h3>by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user}}</a></h3>
 
 
 {% endblock %}
