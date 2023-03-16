@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Archived Listings</h2>
+    <ul>
+        {% for listing in listings %}
+            <li>
+                <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>
+                by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user.username}}</a>, posted on {{ listing.posted_datetime}}
+                <br>
+                {% if listing.image_url %}
+                    <img src="{{ listing.image_url }}" width="600" alt="{{ listing.title }}">
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

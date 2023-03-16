@@ -1,0 +1,10 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+   <ul>
+   {% for category_choice in category_choices %}
+       <li><a href="{% url 'category' abbreviation=category_choice.abbreviation %}">{{ category_choice.full_name }}</a></li>
+   {% endfor %}
+   </ul>
+
+{% endblock %}

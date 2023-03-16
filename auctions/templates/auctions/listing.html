@@ -1,8 +1,63 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>{{ listing.title }}</h2>
-    <h3>by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user}}</a></h3>
+    {% if message %}
+    <p>{{ message }}</p>
+    <hr>
+    {% endif %}
 
+    {% if listing.active %}
+        <h2>{{ listing.title }}</h2>
+        <p>Posted by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user }}</a> on {{ listing.posted_datetime }}</p>
+    {% else %}
+        <h2>(SOLD) {{ listing.title }}</h2>
+        {% if listing.buyer == user %}
+            <p>You won this auction!</p>
+        {% else %}
+            <p>{{ listing.buyer }} won this auction.</p>
+        {% endif %}
+    {% endif %}
 
+    {% if listing.category %}
+        <p>Category: <a href="{% url 'category' abbreviation=listing.category %}">{{ listing.get_category_display }}</a></p>
+    {% endif %}
+    <hr>
+
+    {% if listing.image_url %}
+        <img src="{{ listing.image_url }}" width="600" alt="{{ listing.title }}">
+    {% endif %}
+    <h3>Description: </h3>
+    <p>{{ listing.description }}</p>
+    <hr>
+
+    <p>Starting Bid: <label>$</label>{{ listing.starting_bid }}</p>
+    {% if highest_bid %}
+        <p>Highest Bid: ${{ highest_bid.value|floatformat:2 }} (posted on {{ highest_bid.posted_datetime }} by {{ highest_bid.user }})</p>
+    {% endif %}
+    {% if user.is_authenticated %}
+        {% if user == listing.user %}
+            <a>Sell!</a>
+        {% else %}
+            <form action='{% url 'listing' listing_id=listing.id %}' method="post">
+                {% csrf_token %}
+                <p>{{ your_bid_form }} <input type="submit" value="Bid!"> </p>
+            </form>
+        {%  endif %}
+        <hr>
+        <form action="{% url 'listing' listing_id=listing.id %}"  method="post">
+            {% csrf_token %}
+            <label for="{{ comment_form.text.id_for_label }}">{{ comment_form.text.label }}</label>
+            <div>
+                {{ comment_form.content }}
+            </div>
+            <input type="submit" value="Post Comment">
+        </form>
+    {% endif %}
+    <hr>
+    {% for comment in comments %}
+        <label><b>{{ comment.user }}:</b></label>
+        <p>{{ comment.content }}</p>
+        <p>(posted on {{ comment.posted_datetime }})</p>
+        <hr>
+    {%  endfor %}
 {% endblock %}
