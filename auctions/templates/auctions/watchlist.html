@@ -1,9 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Watchlist</h2>
     {% if not listings %}
-        <p>No active listings.</p>
+        <p>No listings in your watchlist.</p>
     {% endif %}
     <ul>
         {% for listing in listings %}

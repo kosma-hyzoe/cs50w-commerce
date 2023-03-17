@@ -1,9 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>{{ user.username }}</h2>
-    <p>Account created on {{ user.date_joined }}</p>
-    <p>Last login on {{ user.last_login }}</p>
+    <h2>{{ seller.username }}</h2>
+    <p>Account created on {{ seller.date_joined }}</p>
+    <p>Last login on {{ seller.last_login }}</p>
     <hr>
     <ul>
         {% if listings %}

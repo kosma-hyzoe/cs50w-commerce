@@ -3,6 +3,9 @@
 {% block body %}
     <h2>{{ category_full_name }}</h2>
 
+    {% if not listings %}
+        <p>No active listings in this category.</p>
+    {% endif %}
     {% for listing in listings %}
             <li>
                 <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>
@@ -12,5 +15,5 @@
                     <img src="{{ listing.image_url }}" width="600" alt="{{ listing.title }}">
                 {% endif %}
             </li>
-        {% endfor %}
+    {% endfor %}
 {% endblock %}

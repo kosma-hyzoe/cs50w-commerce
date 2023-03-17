@@ -1,23 +1,25 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 
 from . import forms
-from .models import User, Listing, Bid, CategoryChoice, Comment
+from .models import User, Listing, Bid, CategoryChoice, Comment, Watchlist
 
 
 def index(request):
     return render(request, "auctions/index.html",
-                  {"listings": Listing.objects.filter(active=True).order_by('-posted_datetime')})
+                  {"listings": Listing.objects.filter(buyer__isnull=True).order_by('-posted_datetime')})
 
 
 def archive(request):
     return render(request, "auctions/archive.html",
-                  {"listings": Listing.objects.filter(active=False).order_by('-posted_datetime')})
+                  {"listings": Listing.objects.filter(buyer__isnull=False).order_by('-posted_datetime')})
 
 
+@login_required(login_url="/login")
 def create(request):
     if request.method == "POST":
         form = forms.CreateNewListing(request.POST)
@@ -37,16 +39,25 @@ def create(request):
         return render(request, "auctions/create.html", {"form": form})
 
 
+@login_required(login_url="/login")
 def listing_view(request, listing_id):
+    message = None
+    # todo move somewhere
+    try:
+        watchlist = Watchlist.objects.get(user=request.user)
+    except Watchlist.DoesNotExist:
+        watchlist = Watchlist(user=request.user)
+        watchlist.save()
+
     try:
         listing = Listing.objects.get(id=listing_id)
+        on_watchlist = watchlist.listings.filter(id=listing.id).exists()
         highest_bid = Bid.objects.filter(listing=listing).order_by("-value").first()
     except Bid.DoesNotExist:
         highest_bid = None
     except Listing.DoesNotExist:
         raise Http404("Listing not found.")
 
-    message = None
     if request.method == "POST":
         # check if the 'your bid' form was submitted
         if 'value' in request.POST:
@@ -73,6 +84,20 @@ def listing_view(request, listing_id):
             else:
                 message = "Invalid comment content."
 
+    if "sell" in request.POST:
+        buyer = highest_bid.user
+        listing.buyer = buyer
+        listing.save()
+        message = "You just sold this item!"
+    elif "watchlist" in request.POST:
+
+        if on_watchlist:
+            on_watchlist = False
+            watchlist.listings.remove(listing)
+        else:
+            watchlist.listings.add(listing)
+            on_watchlist = True
+
     your_bid_form = forms.YourBid()
     comment_form = forms.CommentForm()
 
@@ -80,36 +105,35 @@ def listing_view(request, listing_id):
     return render(request, "auctions/listing.html",
                   {"listing": listing, "highest_bid": highest_bid,
                    "your_bid_form": your_bid_form, "comment_form": comment_form,
-                   "message": message, "comments": comments})
+                   "message": message, "comments": comments, "on_watchlist": on_watchlist})
 
 
 def categories_view(request):
     return render(request, "auctions/categories.html", {"category_choices": Listing.CATEGORY_CHOICES})
 
 
+@login_required(login_url="/login")
 def user_view(request, user_id):
     try:
-        user = User.objects.get(id=user_id)
+        seller = User.objects.get(id=user_id)
     except User.DoesNotExist:
         raise Http404("User not found.")
     listings = Listing.objects.filter(user=user_id)
-    return render(request, "auctions/user.html", {"user": user, "listings": listings})
+    return render(request, "auctions/user.html", {"seller": seller, "listings": listings})
+
+
+@login_required(login_url="/login")
+def watchlist_view(request):
+    listings = Watchlist.objects.get(user=request.user).listings.all()
+    return render(request, "auctions/watchlist.html", {"listings": listings})
 
 
 def category_view(request, abbreviation):
     abbreviation = abbreviation.upper()
     full_name = dict(Listing.CATEGORY_CHOICES).get(abbreviation)
     category_choice = CategoryChoice(abbreviation, full_name)
-    listings = Listing.objects.filter(category=abbreviation)
+    listings = Listing.objects.filter(category=abbreviation, buyer__isnull=True)
     return render(request, "auctions/category.html", {"category_full_name": category_choice.full_name, "listings": listings})
-
-
-def item_sold(request, listing_id):
-    listing = Listing.objects.get(id=listing_id)
-
-    item_title = listing.title
-    highest_bid = Bid.objects.filter(listing=listing).order_by("-value").first()
-    return None
 
 
 def login_view(request):
@@ -159,6 +183,10 @@ def register(request):
                 "message": "Username already taken."
             })
         login(request, user)
+
+        # create a watchlist for the user
+        watchlist = Watchlist(user=request.user)
+        watchlist.save()
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")

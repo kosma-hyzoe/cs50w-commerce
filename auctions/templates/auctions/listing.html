@@ -6,17 +6,30 @@
     <hr>
     {% endif %}
 
-    {% if listing.active %}
+    {% if not listing.buyer %}
+        {% if not on_watchlist %}
+            <form method="post">
+                {% csrf_token %}
+                <p><input type="submit" name="watchlist" value="Add to watchlist"></p>
+            </form>
+            <hr>
+            {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    <p><input type="submit" name="watchlist" value="Remove from watchlist"></p>
+                </form>
+            {% endif %}
         <h2>{{ listing.title }}</h2>
-        <p>Posted by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user }}</a> on {{ listing.posted_datetime }}</p>
     {% else %}
         <h2>(SOLD) {{ listing.title }}</h2>
         {% if listing.buyer == user %}
-            <p>You won this auction!</p>
+            <p>You won this auction for ${{ highest_bid.value }}!</p>
         {% else %}
-            <p>{{ listing.buyer }} won this auction.</p>
+            <p>{{ listing.buyer }} won this auction for ${{ highest_bid.value }}.</p>
         {% endif %}
     {% endif %}
+
+    <p>Posted by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user }}</a> on {{ listing.posted_datetime }}</p>
 
     {% if listing.category %}
         <p>Category: <a href="{% url 'category' abbreviation=listing.category %}">{{ listing.get_category_display }}</a></p>
@@ -31,29 +44,36 @@
     <hr>
 
     <p>Starting Bid: <label>$</label>{{ listing.starting_bid }}</p>
-    {% if highest_bid %}
-        <p>Highest Bid: ${{ highest_bid.value|floatformat:2 }} (posted on {{ highest_bid.posted_datetime }} by {{ highest_bid.user }})</p>
-    {% endif %}
-    {% if user.is_authenticated %}
-        {% if user == listing.user %}
-            <a>Sell!</a>
-        {% else %}
+
+    {% if not listing.buyer %}
+        {% if highest_bid %}
+            <p>Highest Bid: ${{ highest_bid.value|floatformat:2 }} (posted on {{ highest_bid.posted_datetime }} by {{ highest_bid.user }})</p>
+            {% if user == listing.user %}
+               <form method="post">
+                    {% csrf_token %}
+                    <p><input type="submit" name="sell" value="Sell to the highest bidder!"></p>
+                </form>
+            {% endif %}
+        {% endif %}
+        {% if user.is_authenticated and user != listing.user  %}
             <form action='{% url 'listing' listing_id=listing.id %}' method="post">
                 {% csrf_token %}
                 <p>{{ your_bid_form }} <input type="submit" value="Bid!"> </p>
             </form>
         {%  endif %}
-        <hr>
-        <form action="{% url 'listing' listing_id=listing.id %}"  method="post">
-            {% csrf_token %}
-            <label for="{{ comment_form.text.id_for_label }}">{{ comment_form.text.label }}</label>
-            <div>
-                {{ comment_form.content }}
-            </div>
-            <input type="submit" value="Post Comment">
-        </form>
+            <h3>Comments: </h3>
+            <hr>
+            <form action="{% url 'listing' listing_id=listing.id %}"  method="post">
+                {% csrf_token %}
+                <label for="{{ comment_form.text.id_for_label }}">{{ comment_form.text.label }}</label>
+                <div>
+                    {{ comment_form.content }}
+                </div>
+                <input type="submit" value="Post Comment">
+            </form>
     {% endif %}
     <hr>
+
     {% for comment in comments %}
         <label><b>{{ comment.user }}:</b></label>
         <p>{{ comment.content }}</p>

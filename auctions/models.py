@@ -5,6 +5,7 @@ from django.db import models
 
 CategoryChoice = namedtuple("CategoryChoice", ['abbreviation', 'full_name'])
 
+
 class User(AbstractUser):
     pass
 
@@ -36,6 +37,7 @@ class Listing(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="buyers")
     title = models.CharField(max_length=50)
     description = models.TextField(max_length=5000)
     starting_bid = models.DecimalField(decimal_places=2, max_digits=10)
@@ -48,14 +50,9 @@ class Listing(models.Model):
         return f"{self.title} @ {self.starting_bid}"
 
 
-class TransactionItem(models.Model):
-    buyer = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING)
-
-
-class WishlistItem(models.Model):
+class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    listings = models.ManyToManyField(Listing)
 
 
 class Bid(models.Model):
