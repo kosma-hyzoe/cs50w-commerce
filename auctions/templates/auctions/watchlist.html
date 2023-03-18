@@ -8,6 +8,9 @@
     <ul>
         {% for listing in listings %}
             <li>
+                {% if listing.buyer %}
+                    (SOLD)
+                {% endif %}
                 <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>
                 by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user.username}}</a>, posted on {{ listing.posted_datetime}}
                 <br>
