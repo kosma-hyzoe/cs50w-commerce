@@ -41,13 +41,19 @@ class Listing(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField(max_length=5000)
     starting_bid = models.DecimalField(decimal_places=2, max_digits=10)
+    current_price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     posted_datetime = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, null=True)
     image_url = models.CharField(max_length=2048, null=True)
     active = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        if self.current_price == 0:
+            self.current_price = self.starting_bid
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.title} @ {self.starting_bid}"
+        return f"{self.title} by {self.user.username}"
 
 
 class Watchlist(models.Model):
@@ -67,4 +73,3 @@ class Comment(models.Model):
     content = models.CharField(max_length=200)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
     posted_datetime = models.DateTimeField(auto_now_add=True)
-

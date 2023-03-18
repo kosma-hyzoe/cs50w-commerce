@@ -1,0 +1,35 @@
+[33mcommit 47c2e5c3b5b88653be7c0a6ed375bcb8c48377fa[m[33m ([m[1;36mHEAD -> [m[1;32mweb50/projects/2020/x/commerce[m[33m)[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Fri Mar 17 02:38:12 2023 +0100
+
+    pre-test dirty commit
+
+[33mcommit 9df201669d85337aaa536c691e580375d8a59b3e[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Thu Mar 16 22:42:27 2023 +0100
+
+    a really messy commit
+
+[33mcommit a2be43ad722bfb45da667f836535e76019e42bd8[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Sat Mar 11 22:32:17 2023 +0100
+
+    major model changes and some views
+
+[33mcommit 151779b98a07a6b6c9dc1bdd68e1d76596e0cfa8[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Tue Mar 7 11:13:00 2023 +0100
+
+    outlines for models and some listing logic
+
+[33mcommit 68d4875b057c5de9f543251683d12eadc396e1e6[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Fri Mar 3 15:36:30 2023 +0100
+
+    added "other" category
+
+[33mcommit c9a532cf4219a82cd54594a5a7f3cb0b3478ad6e[m
+Author: kosma-hyzoe <kosma.hyzoe@gmail.com>
+Date:   Thu Mar 2 12:08:53 2023 +0100
+
+    outline for "create new listing" functionality

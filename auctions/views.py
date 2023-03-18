@@ -42,7 +42,7 @@ def create(request):
 @login_required(login_url="/login")
 def listing_view(request, listing_id):
     message = None
-    # todo move somewhere
+    # a temporary workaround for superusers (not created by the register() view)
     try:
         watchlist = Watchlist.objects.get(user=request.user)
     except Watchlist.DoesNotExist:
@@ -65,12 +65,14 @@ def listing_view(request, listing_id):
             if your_bid_form.is_valid():
                 your_bid_value = your_bid_form.cleaned_data.get("value")
                 # check if bid value is higher than the highest/starting bid
-                if your_bid_value < listing.starting_bid or highest_bid and your_bid_value < highest_bid.value:
+                if listing.current_price >= your_bid_value:
                     message = "The value of your bid is invalid! Please try again."
                 else:
                     highest_bid = Bid(user=request.user, listing=listing, value=your_bid_value)
                     highest_bid.save()
                     message = f"You just bid this auction for ${your_bid_value:.2f}."
+                    listing.current_price = your_bid_value
+                    listing.save()
             else:
                 message = "Invalid bid value"
         # check if the comment form was submitted

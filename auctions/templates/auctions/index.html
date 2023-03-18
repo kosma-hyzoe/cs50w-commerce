@@ -11,12 +11,11 @@
                 <hr>
                 <a href="{% url 'listing' listing_id=listing.id %}">{{ listing.title }}</a>
                 by <a href="{% url 'user' user_id=listing.user.id  %}">{{ listing.user.username}}</a>, posted on {{ listing.posted_datetime}}
-                <br>
+                <p>Current price: ${{ listing.current_price }}</p>
                 {% if listing.image_url %}
                     <img src="{{ listing.image_url }}" width="600" alt="{{ listing.title }}">
                 {% endif %}
-                <br>
-                {{ listing.description }}
+                <p>{{ listing.description }}</p>
             </li>
         {% endfor %}
     </ul>
